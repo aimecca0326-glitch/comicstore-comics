@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>카페24 인증코드</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#fff; --ink:#1a1d21; --dim:#6b7280;
+    --line:#e3e6ea; --ok:#0b7d4b; --okbg:#e8f6ee; --warn:#b45309; --warnbg:#fef3e2;
+    --accent:#2f5bd8;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      --bg:#14171a; --card:#1d2126; --ink:#e9ecef; --dim:#9aa3ad;
+      --line:#2c3238; --ok:#5fd39b; --okbg:#122a20; --warn:#e0a458; --warnbg:#2c2314;
+      --accent:#7fa0ff;
+    }
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:system-ui,-apple-system,"Malgun Gothic","맑은 고딕",sans-serif;
+    display:flex;justify-content:center;padding:20px}
+  .wrap{width:100%;max-width:560px}
+  h1{font-size:19px;margin:6px 0 4px}
+  .sub{color:var(--dim);font-size:13px;margin:0 0 18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:14px}
+  .label{font-size:12px;color:var(--dim);letter-spacing:.02em;margin-bottom:8px}
+  .code{font-family:ui-monospace,Consolas,monospace;font-size:20px;font-weight:600;
+    word-break:break-all;line-height:1.5;user-select:all}
+  button{width:100%;margin-top:14px;padding:14px;font-size:16px;font-weight:600;
+    border:0;border-radius:9px;background:var(--accent);color:#fff;cursor:pointer}
+  button:active{opacity:.85}
+  .timer{margin-top:12px;font-size:13px;color:var(--dim)}
+  .timer b{color:var(--warn);font-variant-numeric:tabular-nums}
+  .note{background:var(--warnbg);border:1px solid var(--line);border-radius:10px;
+    padding:12px 14px;font-size:13px;line-height:1.65;color:var(--ink)}
+  .ok{background:var(--okbg);color:var(--ok);border-radius:8px;padding:9px 12px;
+    font-size:13px;font-weight:600;margin-top:10px;display:none}
+  dl{margin:0;font-size:13px}
+  dt{color:var(--dim);margin-top:10px}
+  dd{margin:2px 0 0;font-family:ui-monospace,Consolas,monospace;word-break:break-all}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>카페24 인증코드</h1>
+  <p class="sub">이 페이지는 코드를 화면에 보여주기만 합니다. 어디로도 전송하지 않습니다.</p>
+  <div id="out"></div>
+</div>
+
+<script>
+(function(){
+  var q = new URLSearchParams(location.search);
+  var code = q.get('code');
+  var err  = q.get('error');
+  var out  = document.getElementById('out');
+
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
+
+  if (code) {
+    out.innerHTML =
+      '<div class="card">' +
+        '<div class="label">인증코드 (code)</div>' +
+        '<div class="code" id="code">' + esc(code) + '</div>' +
+        '<button id="copy">복사하기</button>' +
+        '<div class="ok" id="ok">복사했습니다</div>' +
+        '<div class="timer">유효시간 <b id="left">60</b>초 — 지나면 처음부터 다시 인증해야 합니다.</div>' +
+      '</div>' +
+      '<div class="card"><dl>' +
+        '<dt>state</dt><dd>' + esc(q.get('state') || '(없음)') + '</dd>' +
+        '<dt>전체 주소</dt><dd>' + esc(location.href) + '</dd>' +
+      '</dl></div>';
+
+    document.getElementById('copy').onclick = function(){
+      var t = code;
+      function done(){ var o=document.getElementById('ok'); o.style.display='block'; }
+      if (navigator.clipboard) { navigator.clipboard.writeText(t).then(done, fallback); }
+      else fallback();
+      function fallback(){
+        var ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta);
+        ta.select(); try{document.execCommand('copy'); done();}catch(e){} ta.remove();
+      }
+    };
+
+    var n = 60, el = document.getElementById('left');
+    var iv = setInterval(function(){
+      n--; el.textContent = n;
+      if (n <= 0) { clearInterval(iv); el.textContent = '만료'; }
+    }, 1000);
+
+  } else if (err) {
+    out.innerHTML = '<div class="note"><b>인증이 거부되었습니다.</b><br>' +
+      'error: ' + esc(err) + '<br>' +
+      esc(q.get('error_description') || '') + '</div>';
+  } else {
+    out.innerHTML = '<div class="note">' +
+      '아직 인증코드가 없습니다.<br><br>' +
+      '카페24 인증 주소로 접속하면, 인증 후 이 페이지로 돌아오면서 ' +
+      '주소 끝에 <b>?code=...</b> 가 붙습니다. 그때 코드가 여기 표시됩니다.' +
+      '</div>';
+  }
+})();
+</script>
+</body>
+</html>
