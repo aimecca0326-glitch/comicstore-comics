@@ -3,104 +3,163 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>카페24 인증코드</title>
+<title>코믹툰 업무</title>
+<link rel="manifest" href="./manifest.webmanifest">
+<meta name="application-name" content="코믹툰 업무">
+<meta name="apple-mobile-web-app-title" content="코믹툰 업무">
 <style>
   :root{
-    --bg:#f6f7f9; --card:#fff; --ink:#1a1d21; --dim:#6b7280;
-    --line:#e3e6ea; --ok:#0b7d4b; --okbg:#e8f6ee; --warn:#b45309; --warnbg:#fef3e2;
-    --accent:#2f5bd8;
+    --바탕:#F5F6F8; --판:#FFFFFF; --글:#232833; --흐림:#5C6472; --더흐림:#6F7787;
+    --줄:#E4E7EC; --줄2:#D0D5DD; --도장:#1C8B6B; --도장연:#EAF6F2;
+    --붉음:#D14356; --그늘:0 1px 2px rgba(16,24,40,.06);
+    --글꼴:Pretendard,"Segoe UI","Malgun Gothic","맑은 고딕",system-ui,sans-serif;
+    --고정폭:Consolas,"D2Coding",ui-monospace,monospace;
   }
   @media (prefers-color-scheme:dark){
     :root{
-      --bg:#14171a; --card:#1d2126; --ink:#e9ecef; --dim:#9aa3ad;
-      --line:#2c3238; --ok:#5fd39b; --okbg:#122a20; --warn:#e0a458; --warnbg:#2c2314;
-      --accent:#7fa0ff;
+      --바탕:#12161d; --판:#1a2029; --글:#e9edf3; --흐림:#a3adbb; --더흐림:#8b95a4;
+      --줄:#28303c; --줄2:#39424f; --도장:#4fd1a5; --도장연:#132a22; --붉음:#f4778a;
+      --그늘:0 1px 2px rgba(0,0,0,.3);
     }
   }
   *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--ink);
-    font-family:system-ui,-apple-system,"Malgun Gothic","맑은 고딕",sans-serif;
-    display:flex;justify-content:center;padding:20px}
-  .wrap{width:100%;max-width:560px}
-  h1{font-size:19px;margin:6px 0 4px}
-  .sub{color:var(--dim);font-size:13px;margin:0 0 18px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:18px;margin-bottom:14px}
-  .label{font-size:12px;color:var(--dim);letter-spacing:.02em;margin-bottom:8px}
-  .code{font-family:ui-monospace,Consolas,monospace;font-size:20px;font-weight:600;
-    word-break:break-all;line-height:1.5;user-select:all}
-  button{width:100%;margin-top:14px;padding:14px;font-size:16px;font-weight:600;
-    border:0;border-radius:9px;background:var(--accent);color:#fff;cursor:pointer}
-  button:active{opacity:.85}
-  .timer{margin-top:12px;font-size:13px;color:var(--dim)}
-  .timer b{color:var(--warn);font-variant-numeric:tabular-nums}
-  .note{background:var(--warnbg);border:1px solid var(--line);border-radius:10px;
-    padding:12px 14px;font-size:13px;line-height:1.65;color:var(--ink)}
-  .ok{background:var(--okbg);color:var(--ok);border-radius:8px;padding:9px 12px;
-    font-size:13px;font-weight:600;margin-top:10px;display:none}
-  dl{margin:0;font-size:13px}
-  dt{color:var(--dim);margin-top:10px}
-  dd{margin:2px 0 0;font-family:ui-monospace,Consolas,monospace;word-break:break-all}
+  body{margin:0;background:var(--바탕);color:var(--글);font-family:var(--글꼴);
+       padding:20px 16px 40px}
+  .가운데{max-width:640px;margin:0 auto}
+  h1{font-size:22px;margin:0 0 4px}
+  .부제{margin:0 0 22px;color:var(--더흐림);font-size:13px}
+  h2{font-size:13px;color:var(--흐림);margin:26px 0 10px;letter-spacing:.02em}
+  .칸{background:var(--판);border:1px solid var(--줄);border-radius:12px;
+      padding:14px 16px;margin-bottom:10px;box-shadow:var(--그늘)}
+  .이름{font-size:16px;font-weight:800;margin:0 0 3px}
+  .설명{margin:0 0 11px;font-size:13px;color:var(--흐림);line-height:1.6}
+  .단추들{display:flex;gap:8px;flex-wrap:wrap}
+  a.단추{display:inline-block;padding:10px 16px;font-size:14px;font-weight:700;
+         text-decoration:none;border-radius:8px;
+         background:var(--도장);color:#fff;border:1px solid var(--도장)}
+  a.단추.흐림{background:transparent;color:var(--흐림);border-color:var(--줄2)}
+  a.단추:active{opacity:.85}
+  .귀띔{margin:9px 0 0;font-size:12px;color:var(--더흐림);line-height:1.6}
+  .꼬리{margin-top:30px;padding-top:16px;border-top:1px solid var(--줄);
+        font-size:13px;color:var(--더흐림);line-height:1.8}
+  .꼬리 a{color:var(--도장)}
+  /* 인증코드 화면 */
+  .코드{font-family:var(--고정폭);font-size:20px;font-weight:700;word-break:break-all;
+        line-height:1.5;user-select:all;margin:6px 0 0}
+  button.복사{width:100%;margin-top:14px;padding:14px;font-size:16px;font-weight:700;
+              border:0;border-radius:9px;background:var(--도장);color:#fff;cursor:pointer}
+  .알림{margin-top:10px;padding:9px 12px;border-radius:8px;background:var(--도장연);
+        color:var(--도장);font-size:13px;font-weight:700;display:none}
+  .시간{margin-top:12px;font-size:13px;color:var(--더흐림)}
+  .시간 b{color:var(--붉음);font-variant-numeric:tabular-nums}
+  .딱지{font-size:11px;color:var(--더흐림);font-family:var(--고정폭)}
 </style>
 </head>
 <body>
-<div class="wrap">
-  <h1>카페24 인증코드</h1>
-  <p class="sub">이 페이지는 코드를 화면에 보여주기만 합니다. 어디로도 전송하지 않습니다.</p>
-  <div id="out"></div>
-</div>
+<div class="가운데" id="바탕"></div>
 
 <script>
-(function(){
-  var q = new URLSearchParams(location.search);
-  var code = q.get('code');
-  var err  = q.get('error');
-  var out  = document.getElementById('out');
+(function () {
+  var 짐 = new URLSearchParams(location.search);
+  var 코드 = 짐.get('code');
+  var 탈 = 짐.get('error');
+  var 바탕 = document.getElementById('바탕');
 
-  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){
-    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }); }
-
-  if (code) {
-    out.innerHTML =
-      '<div class="card">' +
-        '<div class="label">인증코드 (code)</div>' +
-        '<div class="code" id="code">' + esc(code) + '</div>' +
-        '<button id="copy">복사하기</button>' +
-        '<div class="ok" id="ok">복사했습니다</div>' +
-        '<div class="timer">유효시간 <b id="left">60</b>초 — 지나면 처음부터 다시 인증해야 합니다.</div>' +
-      '</div>' +
-      '<div class="card"><dl>' +
-        '<dt>state</dt><dd>' + esc(q.get('state') || '(없음)') + '</dd>' +
-        '<dt>전체 주소</dt><dd>' + esc(location.href) + '</dd>' +
-      '</dl></div>';
-
-    document.getElementById('copy').onclick = function(){
-      var t = code;
-      function done(){ var o=document.getElementById('ok'); o.style.display='block'; }
-      if (navigator.clipboard) { navigator.clipboard.writeText(t).then(done, fallback); }
-      else fallback();
-      function fallback(){
-        var ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta);
-        ta.select(); try{document.execCommand('copy'); done();}catch(e){} ta.remove();
-      }
-    };
-
-    var n = 60, el = document.getElementById('left');
-    var iv = setInterval(function(){
-      n--; el.textContent = n;
-      if (n <= 0) { clearInterval(iv); el.textContent = '만료'; }
-    }, 1000);
-
-  } else if (err) {
-    out.innerHTML = '<div class="note"><b>인증이 거부되었습니다.</b><br>' +
-      'error: ' + esc(err) + '<br>' +
-      esc(q.get('error_description') || '') + '</div>';
-  } else {
-    out.innerHTML = '<div class="note">' +
-      '아직 인증코드가 없습니다.<br><br>' +
-      '카페24 인증 주소로 접속하면, 인증 후 이 페이지로 돌아오면서 ' +
-      '주소 끝에 <b>?code=...</b> 가 붙습니다. 그때 코드가 여기 표시됩니다.' +
-      '</div>';
+  function 씻기(글) {
+    return String(글).replace(/[&<>"]/g, function (c) {
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];
+    });
   }
+
+  // ── 카페24가 인증코드를 붙여 보냈을 때만 이 화면이 된다 ──
+  if (코드) {
+    바탕.innerHTML =
+      '<h1>카페24 인증코드</h1>' +
+      '<p class="부제">이 코드를 검은 창에 붙여넣으세요. 어디로도 전송하지 않습니다.</p>' +
+      '<div class="칸">' +
+        '<div class="딱지">code</div>' +
+        '<div class="코드" id="코드">' + 씻기(코드) + '</div>' +
+        '<button class="복사" id="복사">복사하기</button>' +
+        '<div class="알림" id="됐다">복사했습니다</div>' +
+        '<div class="시간">유효시간 <b id="남음">60</b>초 — 지나면 처음부터 다시 인증해야 합니다.</div>' +
+      '</div>' +
+      '<div class="꼬리"><a href="./">업무 프로그램 목록으로</a></div>';
+
+    document.getElementById('복사').onclick = function () {
+      function 됐다() { document.getElementById('됐다').style.display = 'block'; }
+      function 옛방식() {
+        var 상자 = document.createElement('textarea');
+        상자.value = 코드; document.body.appendChild(상자); 상자.select();
+        try { document.execCommand('copy'); 됐다(); } catch (e) {}
+        상자.remove();
+      }
+      if (navigator.clipboard) navigator.clipboard.writeText(코드).then(됐다, 옛방식);
+      else 옛방식();
+    };
+    var 남 = 60, 칸 = document.getElementById('남음');
+    var 시계 = setInterval(function () {
+      남--; 칸.textContent = 남;
+      if (남 <= 0) { clearInterval(시계); 칸.textContent = '만료'; }
+    }, 1000);
+    return;
+  }
+
+  if (탈) {
+    바탕.innerHTML = '<h1>인증이 거부되었습니다</h1>' +
+      '<div class="칸"><p class="설명">' + 씻기(탈) + '<br>' +
+      씻기(짐.get('error_description') || '') + '</p></div>' +
+      '<div class="꼬리"><a href="./">업무 프로그램 목록으로</a></div>';
+    return;
+  }
+
+  // ── 평소에는 업무 프로그램 목록 ──
+  var 매장 = '192.168.0.26', 밖 = '100.76.42.74';
+
+  var 프로그램 = [
+    { 이름: '코믹검색',
+      설명: '책 한 권을 다섯 곳 도매에서 비교합니다. 내 쇼핑몰 상품 고치기, 새 상품 등록, 새 주문 알림도 여기 있습니다.',
+      안: 'http://' + 매장 + ':5100/', 바깥: 'http://' + 밖 + ':5100/' },
+    { 이름: '코믹스캔',
+      설명: '바코드를 찍어 카페24에 올릴 상품 파일을 만듭니다.',
+      안: 'https://' + 매장 + ':5000/', 바깥: 'https://' + 밖 + ':5000/' },
+  ];
+
+  var 바깥것 = [
+    { 이름: '코믹툰 쇼핑몰', 설명: '손님이 보는 내 가게', 주소: 'https://comictoon.co.kr' },
+    { 이름: '카페24 관리자', 설명: '주문·상품·정산', 주소: 'https://comicstore.cafe24.com/admin/' },
+    { 이름: '카페24 개발자센터', 설명: '앱 설정과 인증정보', 주소: 'https://developers.cafe24.com/' },
+  ];
+
+  var 글 = '<h1>코믹툰 업무</h1><p class="부제">매장에서 쓰는 프로그램을 모아 둔 곳입니다</p>';
+
+  글 += '<h2>매장 컴퓨터에서 도는 프로그램</h2>';
+  프로그램.forEach(function (p) {
+    글 += '<div class="칸">' +
+      '<p class="이름">' + p.이름 + '</p>' +
+      '<p class="설명">' + p.설명 + '</p>' +
+      '<div class="단추들">' +
+        '<a class="단추" href="' + p.안 + '" target="_blank" rel="noopener">매장 안에서 열기</a>' +
+        '<a class="단추 흐림" href="' + p.바깥 + '" target="_blank" rel="noopener">밖에서 열기</a>' +
+      '</div></div>';
+  });
+  글 += '<p class="귀띔">「밖에서 열기」는 그 기기에 <b>Tailscale이 켜져 있어야</b> 됩니다. ' +
+        '두 가지 다 <b>매장 컴퓨터가 켜져 있고 프로그램이 돌고 있어야</b> 열립니다. ' +
+        '안 열리면 매장 컴퓨터에서 바탕화면 아이콘을 눌러 켜주세요.</p>';
+
+  글 += '<h2>쇼핑몰</h2>';
+  바깥것.forEach(function (p) {
+    글 += '<div class="칸">' +
+      '<p class="이름">' + p.이름 + '</p>' +
+      '<p class="설명">' + p.설명 + '</p>' +
+      '<div class="단추들"><a class="단추" href="' + p.주소 + '" target="_blank" rel="noopener">열기</a></div>' +
+      '</div>';
+  });
+
+  글 += '<div class="꼬리">' +
+        '개인·실험용 프로그램은 <a href="https://apps.comicstore.co.kr/" target="_blank" rel="noopener">apps.comicstore.co.kr</a> 에 있습니다.' +
+        '</div>';
+
+  바탕.innerHTML = 글;
 })();
 </script>
 </body>

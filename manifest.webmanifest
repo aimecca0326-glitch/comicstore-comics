@@ -1,0 +1,8 @@
+{
+  "name": "코믹툰 업무",
+  "short_name": "업무",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#F5F6F8",
+  "theme_color": "#1C8B6B"
+}
