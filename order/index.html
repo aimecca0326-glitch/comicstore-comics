@@ -110,7 +110,7 @@
   }
 
   function 열쇠바꾸기(글) {
-    var 채움 = '===='.slice((글.length + 3) % 4);
+    var 채움 = '==='.slice((글.length + 3) % 4);
     var 바른 = (글 + 채움).replace(/-/g, '+').replace(/_/g, '/');
     var 날것 = atob(바른);
     var 바이트 = new Uint8Array(날것.length);
