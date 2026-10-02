@@ -42,6 +42,13 @@
   .알림글.좋음{display:block;background:var(--도장연);color:var(--도장)}
   .알림글.나쁨{display:block;background:var(--붉음연);color:var(--붉음)}
   h2{font-size:13px;color:var(--흐림);margin:24px 0 9px}
+  .주문목록{font-size:14px;line-height:1.6}
+  .주문하나{padding:10px 0;border-bottom:1px solid var(--줄)}
+  .주문하나:last-child{border-bottom:0}
+  .주문머리{display:flex;justify-content:space-between;gap:8px;font-size:12px;color:var(--흐림)}
+  .주문곳{font-weight:800;color:var(--도장)}
+  .주문품{margin-top:3px}
+  .주문값{font-weight:800}
   .꼬리{margin-top:26px;padding-top:15px;border-top:1px solid var(--줄);
         font-size:12px;color:var(--더흐림);line-height:1.9}
   .꼬리 a{color:var(--도장)}
@@ -65,6 +72,12 @@
   <div class="칸">
     <div class="요약" id="요약">아직 없습니다.</div>
     <button class="흐림" id="새로">다시 읽기</button>
+  </div>
+
+  <!-- 알림을 누르면 내역이 보이게 (2026-10-02 사장님). 손님 이름·주소는 오지 않는다. -->
+  <h2>최근 주문</h2>
+  <div class="칸">
+    <div id="목록" class="주문목록">불러오는 중...</div>
   </div>
 
   <div class="꼬리">
@@ -203,10 +216,41 @@
       칸.textContent = '서버에서 읽지 못했습니다.';
     }
   }
-  document.getElementById('새로').addEventListener('click', 요약읽기);
+  // ---- 최근 주문 내역 (2026-10-02) ----
+  var 목록길 = 서버 + '/' + encodeURIComponent('주문') + '/' + encodeURIComponent('목록');
+  function 글(s) { return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function 상품이름(s) {        // 「/상태중급/(중고)바키(1-31완)/만화책/」 → 「(중고)바키(1-31완)」
+    s = String(s || '').replace(/^\/상태[^\/]*\//, '');
+    return s.indexOf('/') > 0 ? s.split('/')[0] : s;
+  }
+  async function 목록읽기() {
+    var 칸 = document.getElementById('목록');
+    try {
+      var 답 = await (await fetch(목록길, { cache: 'no-store' })).json();
+      var 것들 = (답 && 답.주문들) || [];
+      if (!것들.length) { 칸.textContent = '아직 받은 주문 내역이 없습니다. 새 주문이 들어오면 여기에 쌓입니다.'; return; }
+      칸.innerHTML = 것들.map(function (o) {
+        var 품 = (o.품목 || []).map(function (it) {
+          return 글(상품이름(it.이름)) + ' <b>x' + (it.수 || 1) + '</b>';
+        }).join('<br>');
+        return '<div class="주문하나"><div class="주문머리"><span class="주문곳">' + 글(o.곳) + '</span>' +
+          '<span>' + 글(o.때) + '</span></div>' +
+          '<div class="주문품">' + 품 + '</div>' +
+          '<div class="주문값">' + Number(o.금액 || 0).toLocaleString('ko-KR') + '원</div></div>';
+      }).join('');
+    } catch (e) {
+      칸.textContent = '서버에서 읽지 못했습니다.';
+    }
+  }
+
+  function 다시읽기() { 요약읽기(); 목록읽기(); }
+  document.getElementById('새로').addEventListener('click', 다시읽기);
+  // 알림을 눌러 이미 열린 화면으로 돌아와도 새 내역이 보이게
+  document.addEventListener('visibilitychange', function () { if (!document.hidden) 다시읽기(); });
 
   지금상태();
-  요약읽기();
+  다시읽기();
 })();
 </script>
 </body>
