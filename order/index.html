@@ -232,7 +232,8 @@
       if (!것들.length) { 칸.textContent = '아직 받은 주문 내역이 없습니다. 새 주문이 들어오면 여기에 쌓입니다.'; return; }
       칸.innerHTML = 것들.map(function (o) {
         var 품 = (o.품목 || []).map(function (it) {
-          return 글(상품이름(it.이름)) + ' <b>x' + (it.수 || 1) + '</b>';
+          return 글(상품이름(it.이름)) + ' <b>x' + (it.수 || 1) + '</b>' +
+            (it.값 ? ' <span style="color:var(--흐림)">' + Number(it.값).toLocaleString('ko-KR') + '원</span>' : '');
         }).join('<br>');
         return '<div class="주문하나"><div class="주문머리"><span class="주문곳">' + 글(o.곳) + '</span>' +
           '<span>' + 글(o.때) + '</span></div>' +
