@@ -49,6 +49,13 @@
   .주문곳{font-weight:800;color:var(--도장)}
   .주문품{margin-top:3px}
   .주문값{font-weight:800}
+  .주문메모{margin-top:8px}
+  .메모글{background:#FBF3E0;color:#232833;border-radius:8px;padding:6px 10px;font-size:14px;margin-bottom:6px;white-space:pre-wrap;word-break:break-all}
+  .메모누구{color:#6F7787;font-size:12px}
+  .메모단추{font:inherit;font-size:13px;padding:6px 14px;border-radius:8px;border:1px solid #D0D5DD;background:var(--판);color:var(--글)}
+  .메모단추.저장{background:#1C8B6B;border-color:#1C8B6B;color:#fff}
+  .메모칸{width:100%;box-sizing:border-box;font:inherit;font-size:15px;padding:8px;border-radius:8px;border:1px solid #D0D5DD;background:var(--판);color:var(--글)}
+  .메모단추줄{display:flex;gap:8px;margin-top:6px}
   .꼬리{margin-top:26px;padding-top:15px;border-top:1px solid var(--줄);
         font-size:12px;color:var(--더흐림);line-height:1.9}
   .꼬리 a{color:var(--도장)}
@@ -224,13 +231,81 @@
     s = String(s || '').replace(/^\/상태[^\/]*\//, '');
     return s.indexOf('/') > 0 ? s.split('/')[0] : s;
   }
+  // ---- 주문 메모 (2026-10-04) — 알림 켠 폰에서만 보이고 쓴다. 매장 PC 코믹검색과 맞춰진다 ----
+  var 메모읽기길 = 서버 + '/' + encodeURIComponent('주문') + '/' + encodeURIComponent('메모읽기');
+  var 메모쓰기길 = 서버 + '/' + encodeURIComponent('주문') + '/' + encodeURIComponent('메모쓰기');
+  var 메모들 = {};
+  var 메모쓰는중 = false;
+
+  async function 내폰주소() {
+    try {
+      if (!('serviceWorker' in navigator)) return null;
+      var 등록 = await navigator.serviceWorker.getRegistration('./');
+      var 구독 = 등록 ? await 등록.pushManager.getSubscription() : null;
+      return 구독 ? 구독.endpoint : null;
+    } catch (e) { return null; }
+  }
+
+  async function 메모불러오기() {
+    var 주소 = await 내폰주소();
+    if (!주소) return false;
+    try {
+      var 답 = await (await fetch(메모읽기길, { method: 'POST', cache: 'no-store',
+        headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ endpoint: 주소 }) })).json();
+      if (답.error) return false;
+      메모들 = 답.메모들 || {};
+      return true;
+    } catch (e) { return false; }
+  }
+
+  function 메모그리기(칸, 번호) {
+    var m = 메모들[번호];
+    칸.innerHTML = (m && m.글 ? '<div class="메모글">📝 ' + 글(m.글) + ' <span class="메모누구">' + 글(m.누구 || '') + '</span></div>' : '') +
+      '<button type="button" class="메모단추">' + (m && m.글 ? '메모 고치기' : '메모') + '</button>';
+    칸.querySelector('button').addEventListener('click', function () { 메모열기(칸, 번호); });
+  }
+
+  function 메모열기(칸, 번호) {
+    메모쓰는중 = true;
+    var m = 메모들[번호];
+    칸.innerHTML = '<textarea class="메모칸" maxlength="300" rows="2" placeholder="예) 포장 꼼꼼히 / 나머지 권은 따로 발송"></textarea>' +
+      '<div class="메모단추줄"><button type="button" class="메모단추 저장">저장</button>' +
+      '<button type="button" class="메모단추 그만">닫기</button></div>';
+    var 입력 = 칸.querySelector('textarea');
+    입력.value = m && m.글 ? m.글 : '';
+    입력.focus();
+    function 닫기() { 메모쓰는중 = false; 메모그리기(칸, 번호); }
+    칸.querySelector('.그만').addEventListener('click', 닫기);
+    칸.querySelector('.저장').addEventListener('click', async function () {
+      var 누구 = '';
+      try { 누구 = localStorage.getItem('주문메모_닉네임') || ''; } catch (e) {}
+      if (!누구) {
+        누구 = (prompt('닉네임을 넣어주세요 (메모 옆에 남습니다. 이 폰에 기억됩니다)') || '').trim();
+        if (!누구) return;
+        try { localStorage.setItem('주문메모_닉네임', 누구); } catch (e) {}
+      }
+      var 주소 = await 내폰주소();
+      try {
+        var 답 = await (await fetch(메모쓰기길, { method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ endpoint: 주소, 번호: 번호, 글: 입력.value, 누구: 누구 }) })).json();
+        if (답.error) { alert(답.error); return; }
+        메모들 = 답.메모들 || 메모들;
+      } catch (e) { alert('저장하지 못했습니다. 인터넷 연결을 확인해 주세요.'); return; }
+      닫기();
+    });
+  }
+
   async function 목록읽기() {
+    if (메모쓰는중) return;            // 메모 쓰는 동안 화면을 새로 그리면 쓰던 글이 날아간다
     var 칸 = document.getElementById('목록');
     try {
       var 답 = await (await fetch(목록길, { cache: 'no-store' })).json();
+      var 메모됨 = await 메모불러오기();
+      if (메모쓰는중) return;
       var 것들 = (답 && 답.주문들) || [];
       if (!것들.length) { 칸.textContent = '아직 받은 주문 내역이 없습니다. 새 주문이 들어오면 여기에 쌓입니다.'; return; }
-      칸.innerHTML = 것들.map(function (o) {
+      칸.innerHTML = 것들.map(function (o, i) {
         var 품 = (o.품목 || []).map(function (it) {
           return 글(상품이름(it.이름)) + ' <b>x' + (it.수 || 1) + '</b>' +
             (it.값 ? ' <span style="color:var(--흐림)">' + Number(it.값).toLocaleString('ko-KR') + '원</span>' : '');
@@ -238,8 +313,13 @@
         return '<div class="주문하나"><div class="주문머리"><span class="주문곳">' + 글(o.곳) + '</span>' +
           '<span>' + 글(o.때) + '</span></div>' +
           '<div class="주문품">' + 품 + '</div>' +
-          '<div class="주문값">' + Number(o.금액 || 0).toLocaleString('ko-KR') + '원</div></div>';
+          '<div class="주문값">' + Number(o.금액 || 0).toLocaleString('ko-KR') + '원</div>' +
+          (메모됨 && o.번호 ? '<div class="주문메모" data-i="' + i + '"></div>' : '') + '</div>';
       }).join('');
+      if (메모됨) 칸.querySelectorAll('.주문메모').forEach(function (m) {
+        메모그리기(m, String(것들[Number(m.getAttribute('data-i'))].번호));
+      });
+      else 칸.insertAdjacentHTML('beforeend', '<div style="color:var(--더흐림);font-size:12px;margin-top:8px">메모는 위 「알림 켜기」로 등록한 폰에서만 보입니다.</div>');
     } catch (e) {
       칸.textContent = '서버에서 읽지 못했습니다.';
     }
