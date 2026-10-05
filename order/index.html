@@ -49,6 +49,9 @@
   .주문곳{font-weight:800;color:var(--도장)}
   .주문품{margin-top:3px}
   .주문값{font-weight:800}
+  .보유{display:inline-block;font-size:12px;font-weight:700;color:#1C8B6B;background:#EAF6F2;border-radius:6px;padding:1px 7px;margin-top:2px}
+  .보유.모자람{color:#fff;background:#D14356}
+  .보유.없음{color:#6F7787;background:#E4E7EC;font-weight:400}
   .주문메모{margin-top:8px}
   .메모글{background:#FBF3E0;color:#232833;border-radius:8px;padding:6px 10px;font-size:14px;margin-bottom:6px;white-space:pre-wrap;word-break:break-all}
   .메모누구{color:#6F7787;font-size:12px}
@@ -308,7 +311,9 @@
       칸.innerHTML = 것들.map(function (o, i) {
         var 품 = (o.품목 || []).map(function (it) {
           return 글(상품이름(it.이름)) + ' <b>x' + (it.수 || 1) + '</b>' +
-            (it.값 ? ' <span style="color:var(--흐림)">' + Number(it.값).toLocaleString('ko-KR') + '원</span>' : '');
+            (it.값 ? ' <span style="color:var(--흐림)">' + Number(it.값).toLocaleString('ko-KR') + '원</span>' : '') +
+            // 보유재고·저장위치 (2026-10-05) — 알림이 올 때의 숫자다
+            (it.보유 ? '<br><span class="보유' + (/^보유 0/.test(it.보유) ? ' 모자람' : (/기록 없음|못 찾음/.test(it.보유) ? ' 없음' : '')) + '">' + 글(it.보유) + '</span>' : '');
         }).join('<br>');
         return '<div class="주문하나"><div class="주문머리"><span class="주문곳">' + 글(o.곳) + '</span>' +
           '<span>' + 글(o.때) + '</span></div>' +
