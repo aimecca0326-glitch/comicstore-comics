@@ -25,16 +25,22 @@ self.addEventListener('push', event => {
 
     let 제목 = '새 주문';
     let 몸 = '카페24에 새 주문이 들어왔습니다.';
+    let 표 = '주문알림';
     if (요약 && 요약.건수) {
       제목 = '새 주문 ' + 요약.건수 + '건';
       몸 = 돈(요약.금액) + (요약.줄 ? '  ·  ' + 요약.줄 : '');
+    } else if (요약 && 요약.줄 && 요약.줄.indexOf('[작업]') === 0) {
+      // 주문이 아닌 작업 소식 (2026-11-24, ESM 등록 진행 상황). 주문 알림을 덮지 않게 표를 따로 쓴다.
+      제목 = '작업 알림';
+      몸 = 요약.줄.slice(4).trim();
+      표 = '작업알림';
     }
 
     await self.registration.showNotification(제목, {
       body: 몸,
       icon: './icon-192.png',
       badge: './icon-192.png',
-      tag: '주문알림',            // 같은 표라 여러 번 와도 알림이 쌓이지 않고 갱신된다
+      tag: 표,            // 같은 표라 여러 번 와도 알림이 쌓이지 않고 갱신된다
       renotify: true,
       requireInteraction: false,
       vibrate: [200, 100, 200],
